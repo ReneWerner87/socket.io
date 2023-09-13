@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { StrictEventEmitter as StrictEventEmitterType } from "strict-event-emitter-types";
 
 /**
  * An events map is an interface that maps event names to their value, which
@@ -91,47 +92,8 @@ export abstract class StrictEventEmitter<
     ReservedEvents extends EventsMap = {}
   >
   extends EventEmitter
-  implements TypedEventBroadcaster<EmitEvents>
+  implements TypedEventBroadcaster<EmitEvents>, StrictEventEmitterType<EventEmitter, ReservedOrUserEventNames<ReservedEvents, ListenEvents>>
 {
-  /**
-   * Adds the `listener` function as an event listener for `ev`.
-   *
-   * @param ev Name of the event
-   * @param listener Callback function
-   */
-  on<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
-    ev: Ev,
-    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
-  ): this {
-    return super.on(ev, listener);
-  }
-
-  /**
-   * Adds a one-time `listener` function as an event listener for `ev`.
-   *
-   * @param ev Name of the event
-   * @param listener Callback function
-   */
-  once<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
-    ev: Ev,
-    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
-  ): this {
-    return super.once(ev, listener);
-  }
-
-  /**
-   * Emits an event.
-   *
-   * @param ev Name of the event
-   * @param args Values to send to listeners of this event
-   */
-  emit<Ev extends EventNames<EmitEvents>>(
-    ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
-  ): boolean {
-    return super.emit(ev, ...args);
-  }
-
   /**
    * Emits a reserved event.
    *
@@ -160,22 +122,6 @@ export abstract class StrictEventEmitter<
    */
   protected emitUntyped(ev: string, ...args: any[]): boolean {
     return super.emit(ev, ...args);
-  }
-
-  /**
-   * Returns the listeners listening to an event.
-   *
-   * @param event Event name
-   * @returns Array of listeners subscribed to `event`
-   */
-  listeners<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
-    event: Ev
-  ): ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>[] {
-    return super.listeners(event) as ReservedOrUserListener<
-      ReservedEvents,
-      ListenEvents,
-      Ev
-    >[];
   }
 }
 
